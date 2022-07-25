@@ -1,5 +1,7 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Todo } from '../app.component';
+import { Component, OnInit } from '@angular/core';
+import { delay } from 'rxjs';
+import { TodosService } from '../shared/todos.service';
+
 
 @Component({
   selector: 'app-todos',
@@ -8,16 +10,25 @@ import { Todo } from '../app.component';
 })
 export class TodosComponent implements OnInit {
 
-  @Input() todos: Todo[] = []
-  @Output() onToggle = new EventEmitter<number>()
+  public loading: boolean = true
+  public searchString: string = ''
 
-  constructor() { }
+  constructor(public todosService: TodosService) { }
 
   ngOnInit(): void {
+    this.todosService.fetchTodods()
+    .pipe(delay(500)) 
+    .subscribe(() =>{
+      this.loading = false
+    })
   }
 
   onChange(id: number){
-    this.onToggle.emit(id)
+    this.todosService.onToggle(id)
+  }
+
+  removeTodo(id: number){
+    this.todosService.removeTodo(id)
   }
 
 }
